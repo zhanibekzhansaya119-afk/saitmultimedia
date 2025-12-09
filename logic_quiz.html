@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифрлық Сауаттылық Сұрақтары</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        /* Стильдер бұрынғы кодтан алынды */
+        body { font-family: 'Nunito', sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; line-height: 1.6; }
+        .main-header { background-color: #fff; padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .back-link { font-size: 1.1em; color: #e83e8c; text-decoration: none; font-weight: 700; }
+        
+        .project-container { max-width: 800px; margin: 40px auto; padding: 30px; background-color: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1); text-align: center; }
+        .project-header h1 { font-size: 3em; color: #e83e8c; } 
+        
+        #quiz-box { 
+            padding: 30px; 
+            border: 3px solid #e83e8c; 
+            border-radius: 10px; 
+            margin-bottom: 20px;
+        }
+        #question-text { 
+            font-size: 1.8em; 
+            margin-bottom: 25px; 
+            font-weight: 700; 
+            color: #6f42c1; 
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .option-button {
+            padding: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: #f7f7f7;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            font-weight: 600;
+        }
+        .option-button:hover { background-color: #eee; border-color: #e83e8c; }
+        .correct { background-color: #d4edda; border-color: #28a745; }
+        .incorrect { background-color: #f8d7da; border-color: #e74c3c; }
+
+        #result-message { margin-top: 20px; font-size: 1.5em; font-weight: 800; }
+        #next-button { 
+            margin-top: 25px; 
+            padding: 12px 30px; 
+            background-color: #e83e8c; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.2em; 
+            cursor: pointer;
+            display: none; 
+        }
+        #next-button:hover { background-color: #c0392b; }
+        
+        footer { background-color: #333; color: #fff; text-align: center; padding: 20px 0; font-size: 0.9em; margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">
+            <a href="admin.html"><span class="emoji">🏠</span> Басты бетке</a>
+        </div>
+        <a href="game_interactive.html" class="back-link">🔙 Ойындар тізіміне оралу</a>
+    </header>
+
+    <div class="project-container">
+        <div class="project-header">
+            <span style="font-size: 4em;">🧠💻</span>
+            <h1>Цифрлық Сауаттылық Сұрақтары</h1>
+            <p style="font-size: 1.2em; color: #555;">Компьютерлік әлем туралы біліміңді тексер!</p>
+        </div>
+        
+        <div id="quiz-box">
+            <p id="question-text">Сұрақ</p>
+            <div id="options" class="options-container">
+                </div>
+        </div>
+
+        <div id="result-message"></div>
+        <button id="next-button" onclick="loadNextQuestion()">Келесі Сұрақ ➡️</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 "Білімді Бала". Барлық құқықтар қорғалған.</p>
+    </footer>
+
+    <script>
+        // Цифрлық сауаттылыққа арналған жаңа сұрақтар
+        const quizData = [
+            {
+                question: "Сурет салуға, хат теруге және ойын ойнауға болатын құрылғы?",
+                options: ["Тоңазытқыш", "Компьютер", "Кітап"],
+                answer: "Компьютер"
+            },
+            {
+                question: "Компьютерге әріптер мен сандарды енгізу үшін не қолданылады?",
+                options: ["Экран", "Пернетақта", "Колонна"],
+                answer: "Пернетақта"
+            },
+            {
+                question: "Экрандағы нысандарды жылжытуға және басуға арналған құрылғы?",
+                options: ["Телефон", "Тышқан (Маус)", "Шарик"],
+                answer: "Тышқан (Маус)"
+            },
+            {
+                question: "Біз компьютерге немесе телефонға енгізетін, сақтайтын және көретін нәрселердің жалпы атауы?",
+                options: ["Әуен", "Ақпарат", "Қағаз"],
+                answer: "Ақпарат"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options');
+        const resultMessage = document.getElementById('result-message');
+        const nextButton = document.getElementById('next-button');
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                showFinalResults();
+                return;
+            }
+            
+            const currentQuiz = quizData[currentQuestionIndex];
+            questionText.textContent = currentQuiz.question;
+            optionsContainer.innerHTML = '';
+            resultMessage.textContent = '';
+            nextButton.style.display = 'none';
+
+            currentQuiz.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button');
+                button.onclick = () => checkAnswer(option, button, currentQuiz.answer);
+                optionsContainer.appendChild(button);
+            });
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = false);
+        }
+
+        function checkAnswer(selectedOption, button, correctAnswer) {
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+
+            if (selectedOption === correctAnswer) {
+                button.classList.add('correct');
+                resultMessage.textContent = '✅ Дұрыс!';
+                score++;
+            } else {
+                button.classList.add('incorrect');
+                resultMessage.textContent = '❌ Қате. Дұрыс жауабы: ' + correctAnswer;
+                document.querySelectorAll('.option-button').forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            nextButton.style.display = 'block';
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showFinalResults() {
+            questionText.textContent = 'Викторина Аяқталды!';
+            optionsContainer.innerHTML = '';
+            resultMessage.textContent = `Сіздің нәтижеңіз: ${score}/${quizData.length}`;
+            nextButton.textContent = 'Қайта Бастау';
+            nextButton.style.display = 'block';
+            nextButton.onclick = () => {
+                currentQuestionIndex = 0;
+                score = 0;
+                nextButton.textContent = 'Келесі Сұрақ ➡️';
+                loadQuestion();
+            };
+        }
+
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
